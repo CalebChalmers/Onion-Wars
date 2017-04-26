@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.PostProcessing;
 using UnityEngine.Networking;
 
 public class Player : NetworkBehaviour
@@ -9,9 +10,10 @@ public class Player : NetworkBehaviour
     public Transform neck;
     public Transform head;
     public Camera cam;
+    public PostProcessingProfile postEffectsProfile;
 
-    private UnityStandardAssets.ImageEffects.VignetteAndChromaticAberration vignette;
-    private UnityStandardAssets.ImageEffects.SunShafts sunShafts;
+    //private UnityStandardAssets.ImageEffects.VignetteAndChromaticAberration vignette;
+    //private UnityStandardAssets.ImageEffects.SunShafts sunShafts;
     //private UnityStandardAssets.ImageEffects.DepthOfField depthOfField;
 
     [HideInInspector]
@@ -23,7 +25,6 @@ public class Player : NetworkBehaviour
 
     private float defaultFov;
     private float defaultVignette;
-    private float defaultBlur;
 
     void Start()
     {
@@ -37,16 +38,17 @@ public class Player : NetworkBehaviour
 
         cam.gameObject.SetActive(true);
 
-        vignette = cam.GetComponent<UnityStandardAssets.ImageEffects.VignetteAndChromaticAberration>();
-        sunShafts = cam.GetComponent<UnityStandardAssets.ImageEffects.SunShafts>();
+        //vignette = cam.GetComponent<UnityStandardAssets.ImageEffects.VignetteAndChromaticAberration>();
+        //sunShafts = cam.GetComponent<UnityStandardAssets.ImageEffects.SunShafts>();
         //depthOfField = cam.GetComponent<UnityStandardAssets.ImageEffects.DepthOfField>();
+
+        VignetteModel.Settings vignette = postEffectsProfile.vignette.settings;
 
         rotationX = transform.eulerAngles.x;
         defaultFov = cam.fieldOfView;
         defaultVignette = vignette.intensity;
-        defaultBlur = vignette.blur;
 
-        sunShafts.sunTransform = GameObject.Find("Sun").transform;
+        //sunShafts.sunTransform = GameObject.Find("Sun").transform;
     }
 
     void Update()
@@ -67,20 +69,21 @@ public class Player : NetworkBehaviour
             neck.localEulerAngles = new Vector3(rotationX * 0.65f, 0f, 0f);
             head.localEulerAngles = new Vector3(rotationX * 0.35f, 0f, 0f);
 
+            VignetteModel.Settings vignette = postEffectsProfile.vignette.settings;
+
             // Zoom
             float newFOV = defaultFov;
             float newVignette = defaultVignette;
-            float newBlur = defaultBlur;
             if (Input.GetKey(KeyCode.LeftControl))
             {
                 newFOV /= 2f;
-                newVignette = 0.3f;
-                newBlur = 0.8f;
+                newVignette = 0.45f;
             }
             float lerpSpeed = 10f * Time.deltaTime;
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, newFOV, lerpSpeed);
             vignette.intensity = Mathf.Lerp(vignette.intensity, newVignette, lerpSpeed);
-            vignette.blur = Mathf.Lerp(vignette.blur, newBlur, lerpSpeed);
+
+            postEffectsProfile.vignette.settings = vignette;
         }
     }
 
