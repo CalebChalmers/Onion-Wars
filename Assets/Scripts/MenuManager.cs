@@ -11,8 +11,12 @@ public class MenuManager : MonoBehaviour
     public InputField joinPortInputField;
     public InputField joinIpAddressInputField;
 
+    private NetworkManager manager;
+
     void Start()
     {
+        manager = NetworkManager.singleton;
+
         CursorHelper.CursorLocked = false;
 
         LoadPrefs();
@@ -29,13 +33,13 @@ public class MenuManager : MonoBehaviour
     public void Host()
     {
         SavePrefs();
-        NetworkManager.singleton.StartHost();
+        manager.StartHost();
     }
 
     public void Join()
     {
         SavePrefs();
-        NetworkManager.singleton.StartClient();
+        manager.StartClient();
     }
 
     public void Quit()
@@ -45,7 +49,7 @@ public class MenuManager : MonoBehaviour
 
     public void SetIPAddress(string val)
     {
-        NetworkManager.singleton.networkAddress = val;
+        manager.networkAddress = val;
     }
 
     public void SetPort(string val)
@@ -53,16 +57,16 @@ public class MenuManager : MonoBehaviour
         int result;
         if (int.TryParse(val, out result))
         {
-            NetworkManager.singleton.networkPort = result;
+            manager.networkPort = result;
         }
     }
 
     private void LoadPrefs()
     {
         usernameInputField.text = PlayerPrefs.GetString("username", "");
-        hostPortInputField.text = PlayerPrefs.GetString("host_port", NetworkManager.singleton.networkPort.ToString());
-        joinPortInputField.text = PlayerPrefs.GetString("join_port", NetworkManager.singleton.networkPort.ToString());
-        joinIpAddressInputField.text = PlayerPrefs.GetString("join_ip_address", NetworkManager.singleton.networkAddress);
+        hostPortInputField.text = PlayerPrefs.GetString("host_port", manager.networkPort.ToString());
+        joinPortInputField.text = PlayerPrefs.GetString("join_port", manager.networkPort.ToString());
+        joinIpAddressInputField.text = PlayerPrefs.GetString("join_ip_address", manager.networkAddress);
     }
 
     private void SavePrefs()
