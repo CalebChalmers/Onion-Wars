@@ -20,6 +20,7 @@ public class PlayerMovement : NetworkBehaviour
     private bool isSliding = false;
     private float slideSpeed = 0f;
     private bool isGrounded = false;
+    private bool isJumping = false;
 
     public override void OnStartLocalPlayer()
     {
@@ -58,6 +59,7 @@ public class PlayerMovement : NetworkBehaviour
             velocity.y = -1f;
 
             isSliding = false;
+            isJumping = false;
             
             float angle = Mathf.Clamp(Vector3.Angle(groundHit.normal, Vector3.up), 0f, 90f);
             float newSlideSpeed = 0f;
@@ -82,9 +84,10 @@ public class PlayerMovement : NetworkBehaviour
             velocity.y += gravity * Time.deltaTime;
         }
 
-        if (!isSliding && isGrounded && Input.GetKeyDown(KeyCode.Space) && CursorHelper.CursorLocked)
+        if (!isSliding && !isJumping && isGrounded && Input.GetKeyDown(KeyCode.Space) && CursorHelper.CursorLocked)
         {
             velocity.y = jumpForce;
+            isJumping = true;
         }
 
         cc.Move(velocity * Time.deltaTime);
