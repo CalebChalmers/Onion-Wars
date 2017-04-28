@@ -30,6 +30,11 @@ public class Player : NetworkBehaviour
     void Start()
     {
         GameManager.instance.AddPlayer(this);
+
+        if(!isLocalPlayer)
+        {
+            UpdateUsername(username);
+        }
     }
 
     public override void OnStartLocalPlayer()
