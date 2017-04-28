@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public Animator scorePanelAnimator;
     public Animator notifyAnimator;
     public Transform sunDolly;
+    public GameObject tempCam;
 
     public Slider mouseSensitivitySlider;
 
@@ -60,6 +61,7 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
+        Destroy(tempCam);
         CursorHelper.CursorLocked = true;
 
         menuAnimator = menu.GetComponent<Animator>();
