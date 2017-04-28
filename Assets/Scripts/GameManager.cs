@@ -7,6 +7,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Networking.NetworkSystem;
+using System.Globalization;
 
 public class GameManager : MonoBehaviour
 {
@@ -41,6 +43,9 @@ public class GameManager : MonoBehaviour
     private TimeSpan warmupTime;
     //private float sunRotation;
 
+    private const short starttimecode = 130;
+    private const string starttimeformat = "yyyyMMddHHmmssffff";
+
     public static GameManager instance = null;
 
     void Awake()
@@ -62,6 +67,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Destroy(tempCam);
+
         CursorHelper.CursorLocked = true;
 
         menuAnimator = menu.GetComponent<Animator>();
@@ -76,6 +82,29 @@ public class GameManager : MonoBehaviour
         //sunRotation = sunDolly.localEulerAngles.x;
         
         mouseSensitivitySlider.value = mouseSensitivity = PlayerPrefs.GetFloat("mouse_sensitivity", mouseSensitivitySlider.value);
+        
+        if (NetworkServer.active)
+        {
+            NetworkServer.RegisterHandler(starttimecode, ServerReceiveStartTimeMessage);
+        }
+        else
+        {
+            NetworkClient client = NetworkManager.singleton.client;
+            client.RegisterHandler(starttimecode, ClientReceiveStartTimeMessage);
+            client.Send(starttimecode, new EmptyMessage());
+        }
+    }
+
+    private void ClientReceiveStartTimeMessage(NetworkMessage message)
+    {
+        string timestring = message.ReadMessage<StringMessage>().value;
+        startTime = DateTime.ParseExact(timestring, starttimeformat, CultureInfo.InvariantCulture);
+    }
+
+    private void ServerReceiveStartTimeMessage(NetworkMessage message)
+    {
+        StringMessage msg = new StringMessage(startTime.ToString(starttimeformat));
+        NetworkServer.SendToClient(message.conn.connectionId, starttimecode, msg);
     }
 
     void Update()
