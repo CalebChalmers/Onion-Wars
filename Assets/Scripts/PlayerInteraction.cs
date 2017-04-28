@@ -120,19 +120,23 @@ public class PlayerInteraction : NetworkBehaviour
 
         bool isOnionCrate = selected.CompareTag("Onion Crate");
 
-        if (selected.CompareTag("Onion") || isOnionCrate)
+        if (selected.CompareTag("Onion"))
         {
-            CmdPickup(selected, isOnionCrate);
+            CmdPickup(selected);
+        }
+        else if (isOnionCrate)
+        {
+            CmdPickup(null);
         }
     }
 
     [Command]
-    private void CmdPickup(GameObject obj, bool isOnionCrate)
+    private void CmdPickup(GameObject obj)
     {
         if (carryCount == maxCarryCount) return;
         carryCount++;
 
-        if(!isOnionCrate)
+        if(obj != null)
         {
             NetworkServer.Destroy(obj);
         }
