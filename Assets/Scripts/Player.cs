@@ -11,6 +11,7 @@ public class Player : NetworkBehaviour
     public Transform head;
     public Camera cam;
     public PostProcessingProfile postEffectsProfile;
+    public TextMesh nametag;
 
     //private UnityStandardAssets.ImageEffects.VignetteAndChromaticAberration vignette;
     //private UnityStandardAssets.ImageEffects.SunShafts sunShafts;
@@ -37,6 +38,7 @@ public class Player : NetworkBehaviour
         CmdSetUsername(PlayerPrefs.GetString("username", username));
 
         cam.gameObject.SetActive(true);
+        nametag.gameObject.SetActive(false);
 
         //vignette = cam.GetComponent<UnityStandardAssets.ImageEffects.VignetteAndChromaticAberration>();
         //sunShafts = cam.GetComponent<UnityStandardAssets.ImageEffects.SunShafts>();
@@ -53,37 +55,46 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
-        if (!isLocalPlayer) return;
-
-        if (CursorHelper.CursorLocked)
+        if (isLocalPlayer)
         {
-            // Mouse look
-            float mouseX = Input.GetAxis("Mouse X");
-            float mouseY = Input.GetAxis("Mouse Y");
-
-            float sensitivity = GameManager.instance.mouseSensitivity;
-
-            transform.Rotate(0f, mouseX * sensitivity, 0f);
-
-            rotationX = Mathf.Clamp(rotationX - mouseY * sensitivity, -90f, 90f);
-            neck.localEulerAngles = new Vector3(rotationX * 0.65f, 0f, 0f);
-            head.localEulerAngles = new Vector3(rotationX * 0.35f, 0f, 0f);
-
-            VignetteModel.Settings vignette = postEffectsProfile.vignette.settings;
-
-            // Zoom
-            float newFOV = defaultFov;
-            float newVignette = defaultVignette;
-            if (Input.GetKey(KeyCode.LeftControl))
+            if (CursorHelper.CursorLocked)
             {
-                newFOV /= 2f;
-                newVignette = 0.45f;
-            }
-            float lerpSpeed = 10f * Time.deltaTime;
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, newFOV, lerpSpeed);
-            vignette.intensity = Mathf.Lerp(vignette.intensity, newVignette, lerpSpeed);
+                // Mouse look
+                float mouseX = Input.GetAxis("Mouse X");
+                float mouseY = Input.GetAxis("Mouse Y");
 
-            postEffectsProfile.vignette.settings = vignette;
+                float sensitivity = GameManager.instance.mouseSensitivity;
+
+                transform.Rotate(0f, mouseX * sensitivity, 0f);
+
+                rotationX = Mathf.Clamp(rotationX - mouseY * sensitivity, -90f, 90f);
+                neck.localEulerAngles = new Vector3(rotationX * 0.65f, 0f, 0f);
+                head.localEulerAngles = new Vector3(rotationX * 0.35f, 0f, 0f);
+
+                VignetteModel.Settings vignette = postEffectsProfile.vignette.settings;
+
+                // Zoom
+                float newFOV = defaultFov;
+                float newVignette = defaultVignette;
+                if (Input.GetKey(KeyCode.LeftControl))
+                {
+                    newFOV /= 2f;
+                    newVignette = 0.45f;
+                }
+                float lerpSpeed = 10f * Time.deltaTime;
+                cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, newFOV, lerpSpeed);
+                vignette.intensity = Mathf.Lerp(vignette.intensity, newVignette, lerpSpeed);
+
+                postEffectsProfile.vignette.settings = vignette;
+            }
+        }
+    }
+
+    void LateUpdate()
+    {
+        if(nametag.gameObject.activeSelf)
+        {
+            nametag.transform.LookAt(Camera.main.transform, Vector3.up);
         }
     }
 
@@ -105,6 +116,7 @@ public class Player : NetworkBehaviour
     {
         username = newUsername;
         name = "Player " + username;
+        nametag.text = username;
         GameManager.instance.UpdateScoreboard();
     }
 
