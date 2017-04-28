@@ -12,11 +12,14 @@ public class PlayerMovement : NetworkBehaviour
     public float maxSlideSpeed;
     public float minSlideAngle;
     public float pushPower = 2.0f;
+    public float groundedDist = 0.01f;
 
     private CharacterController cc;
     private Vector3 velocity = Vector3.zero;
     private Vector3 oldMovement = Vector3.zero;
     private bool isSliding = false;
+    private float slideSpeed = 0f;
+    private bool isGrounded = false;
 
     public override void OnStartLocalPlayer()
     {
@@ -46,34 +49,43 @@ public class PlayerMovement : NetworkBehaviour
         velocity.x = movement.x;
         velocity.z = movement.z;
 
+        Ray groundRay = new Ray(transform.position, Vector3.down);
+        RaycastHit groundHit;
+        isGrounded = Physics.SphereCast(groundRay, cc.radius, out groundHit, cc.height / 2f + groundedDist);
+
         if (cc.isGrounded)
         {
-            /*isSliding = false;
+            velocity.y = -1f;
 
-            RaycastHit hit;
-            if (Physics.SphereCast(transform.position, cc.radius, Vector3.down, out hit))
+            isSliding = false;
+            
+            float angle = Mathf.Clamp(Vector3.Angle(groundHit.normal, Vector3.up), 0f, 90f);
+            float newSlideSpeed = 0f;
+
+            if (angle >= minSlideAngle)
             {
-                float angle = Mathf.Clamp(Vector3.Angle(hit.normal, Vector3.up), 0f, 90f);
-
-                if (angle >= minSlideAngle)
-                {
-                    isSliding = true;
-
-                    Vector3 a = Vector3.Cross(Vector3.up, hit.normal);
-                    Vector3 b = Vector3.Cross(a, hit.normal);
-                    float slideSpeed = (angle / 90f) * maxSlideSpeed;
-                    velocity += b * slideSpeed;
-                }
-            }*/
-
-            if (!isSliding && Input.GetKeyDown(KeyCode.Space) && CursorHelper.CursorLocked)
-            {
-                velocity.y = jumpForce;
+                newSlideSpeed = (angle / 90f) * maxSlideSpeed;
+                isSliding = true;
             }
+
+            Vector3 a = Vector3.Cross(Vector3.up, groundHit.normal);
+            Vector3 b = Vector3.Cross(a, groundHit.normal);
+            slideSpeed = Mathf.Lerp(slideSpeed, newSlideSpeed, 10f * Time.deltaTime);
+
+            velocity += b * slideSpeed;
+        }
+        else
+        {
+            slideSpeed = Mathf.Lerp(slideSpeed, 0f, 10f * Time.deltaTime);
+
+            // Apply gravity
+            velocity.y += gravity * Time.deltaTime;
         }
 
-
-        velocity.y -= gravity * Time.deltaTime;
+        if (!isSliding && isGrounded && Input.GetKeyDown(KeyCode.Space) && CursorHelper.CursorLocked)
+        {
+            velocity.y = jumpForce;
+        }
 
         cc.Move(velocity * Time.deltaTime);
     }

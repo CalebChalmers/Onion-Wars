@@ -560,10 +560,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 15
   jumpForce: 12.5
-  gravity: 30
+  gravity: -30
   maxSlideSpeed: 50
   minSlideAngle: 30
   pushPower: 4
+  groundedDist: 0.05
 --- !u!114 &114356386638612810
 MonoBehaviour:
   m_ObjectHideFlags: 1
