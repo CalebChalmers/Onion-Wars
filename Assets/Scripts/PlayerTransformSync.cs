@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [RequireComponent(typeof(Player))]
-[NetworkSettings(channel = 0, sendInterval = 1f/30f)]
+[NetworkSettings(channel = 1, sendInterval = 1f/30f)]
 public class PlayerTransformSync : NetworkBehaviour
 {
     public float lerpRate = 15f;
