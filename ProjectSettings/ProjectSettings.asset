@@ -624,11 +624,12 @@ PlayerSettings:
     daydream:
       daydreamIconForeground: {fileID: 0}
       daydreamIconBackground: {fileID: 0}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    UNet: 0
   facebookSdkVersion: 7.9.1
   apiCompatibilityLevel: 2
-  cloudProjectId: 
-  projectName: 
-  organizationId: 
+  cloudProjectId: b9f3966f-0ac1-446f-99e6-cc70f9f90a68
+  projectName: Onion Wars
+  organizationId: caleb-chalmers
   cloudEnabled: 0
   enableNewInputSystem: 0

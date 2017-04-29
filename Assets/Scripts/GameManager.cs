@@ -22,8 +22,8 @@ public class GameManager : MonoBehaviour
     public Animator notifyAnimator;
     public Transform sunDolly;
     public GameObject tempCam;
-
     public Slider mouseSensitivitySlider;
+    public Animator loadingPanelAnimator;
 
     [Header("Settings")]
     public float gameTimeSeconds;
@@ -189,6 +189,31 @@ public class GameManager : MonoBehaviour
 
     public void Disconnect()
     {
+        NetworkManager manager = NetworkManager.singleton;
+
+        loadingPanelAnimator.SetBool("open", true);
+
+        if (NetworkServer.active)
+        {
+            manager.matchMaker.DestroyMatch(manager.matchInfo.networkId, 1, OnMatchDestroy);
+        }
+        else
+        {
+            NetworkManager.singleton.StopClient();
+        }
+    }
+
+    public void OnMatchDestroy(bool success, string extendedInfo)
+    {
+        if(success)
+        {
+            Debug.Log("Match Destroyed");
+        }
+        else
+        {
+            Debug.Log("Match Destroy Failed");
+        }
+        
         NetworkManager.singleton.StopHost();
     }
 
